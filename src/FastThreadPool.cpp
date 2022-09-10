@@ -11,16 +11,57 @@
  */
 
 #include "FastThreadPool.h"
+#include "BlockQueue.h"
+#include "FqFwThread.h"
 
 namespace fqfw
 {
 
-FastThreadPool::FastThreadPool(/* args */)
+FastThreadPool::FastThreadPool(std::string name, uint32_t threadCount)
+: mName(name)
+, mThreadCount(threadCount)
+, mBlockQueue(new BlockQueue())
 {
+    init();
 }
+
+
+FastThreadPool::FastThreadPool(std::string name, uint32_t threadCount, const std::shared_ptr<BlockQueue>& blockQueue)
+: mName(name)
+, mThreadCount(threadCount)
+, mBlockQueue(blockQueue)
+{
+    init();
+}
+
 
 FastThreadPool::~FastThreadPool()
 {
+    mThreadList.clear();
+}
+
+
+ErrorCode FastThreadPool::post(const std::shared_ptr<Task>& task)
+{
+    return mBlockQueue->add(task);
+}
+
+
+bool FastThreadPool::exit()
+{
+    for (auto it = mThreadList.begin(); it != mThreadList.end(); ++it) {
+        (*it)->stop();
+    }
+    mBlockQueue->exit();
+}
+
+
+void FastThreadPool::init()
+{
+    for (int i = 0; i < mThreadCount; ++i) {
+        std::shared_ptr<FqFwThread> thread = std::shared_ptr<FqFwThread>(new FqFwThread(mBlockQueue));
+        mThreadList.push_back(thread);
+    }
 }
 
 

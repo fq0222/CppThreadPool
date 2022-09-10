@@ -10,23 +10,41 @@
  *               \/_/
  */
 
-#ifndef __fqfw_fast_thread_pool_h_
-#define __fqfw_fast_thread_pool_h_
+#ifndef __FQFW_FAST_THREAD_POOL_H_
+#define __FQFW_FAST_THREAD_POOL_H_
+
+#include <memory>
+#include <string>
+#include <list>
+#include "Define.h"
 
 namespace fqfw
 {
 
+class Task;
+class BlockQueue;
+class FqFwThread;
+
 class FastThreadPool
 {
 private:
-    /* data */
+    std::string                                 mName;
+    uint32_t                                    mThreadCount;
+    std::shared_ptr<BlockQueue>                 mBlockQueue;
+    std::list<std::shared_ptr<FqFwThread>>      mThreadList;
 public:
-    FastThreadPool(/* args */);
+    FastThreadPool(std::string name, uint32_t threadCount);
+    FastThreadPool(std::string name, uint32_t threadCount, const std::shared_ptr<BlockQueue>& blockQueue);
     ~FastThreadPool();
+
+    ErrorCode post(const std::shared_ptr<Task>& task);
+    bool exit();
+private:
+    void init();
 };
 
 
 } // namespace fqfw
 
 
-#endif // __fqfw_fast_thread_pool_h_
+#endif // __FQFW_FAST_THREAD_POOL_H_
