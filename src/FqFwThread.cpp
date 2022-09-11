@@ -71,7 +71,7 @@ void FqFwThread::run()
             auto task = queue->pop();
             if (task) {
                 mTid = mThread.get_id();
-                printf("Tid: %ld FqFwThread::run()\n", mTid);
+                // printf("Tid: %ld FqFwThread::run()\n", mTid);
                 mStatus = ThreadStatus::RUNNING;
                 task->run(mTid);
             }

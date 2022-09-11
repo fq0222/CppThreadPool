@@ -58,6 +58,7 @@ ErrorCode BlockQueue::add(const std::shared_ptr<Task>& task)
 
     mQueue.push_back(task);
     mQueueCV.notify_all();
+    // mQueueCV.notify_one();
 
     return ErrorCode::OK;
 }
