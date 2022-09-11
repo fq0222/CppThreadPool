@@ -10,6 +10,7 @@
  *               \/_/
  */
 
+#include <iostream>
 #include <cstdio>
 #include <chrono>
 #include <thread>
@@ -20,25 +21,23 @@ using namespace fqfw;
 
 class TestTask : public Task
 {
-private:
-    /* data */
 public:
     TestTask() {}
     virtual ~TestTask() {}
 
-    virtual void run() {
-        printf("TestTask run\n");
+    virtual void run(std::thread::id tid) {
+        printf("Tid: %ld TestTask run\n", tid);
     }
 };
 
 
 int main(int argc, char *argv[])
 {
-    printf("hello fqfw\n");
-    std::shared_ptr<FastThreadPool> pool = std::shared_ptr<FastThreadPool>(new FastThreadPool("fqfw", 10));
+    printf("Hello FQFW Thread Pool\n");
+    std::shared_ptr<FastThreadPool> pool = std::shared_ptr<FastThreadPool>(new FastThreadPool("fqfw", 20));
 
 
-    for (int i = 0; i < 200; ++i) {
+    for (int i = 0; i < 50; ++i) {
         std::shared_ptr<Task> task = std::shared_ptr<Task>(new TestTask());
         pool->post(task);
     }
@@ -46,7 +45,7 @@ int main(int argc, char *argv[])
 
     std::this_thread::sleep_for(std::chrono::seconds(10));
 
-    pool->exit();
+    pool->shutdown();
 
     return 0;
 }

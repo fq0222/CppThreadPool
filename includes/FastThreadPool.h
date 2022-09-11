@@ -38,7 +38,7 @@ public:
     ~FastThreadPool();
 
     ErrorCode post(const std::shared_ptr<Task>& task);
-    bool exit();
+    bool shutdown();
 private:
     void init();
 };

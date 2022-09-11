@@ -13,6 +13,7 @@
 #ifndef __FQFW_TASK_H_
 #define __FQFW_TASK_H_
 
+#include <thread>
 #include "Define.h"
 
 namespace fqfw
@@ -35,7 +36,7 @@ public:
         return this->type;
     }
 
-    virtual void run() = 0;
+    virtual void run(std::thread::id tid) = 0;
 };
 
 } // namespace fqfw

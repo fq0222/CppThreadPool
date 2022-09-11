@@ -10,6 +10,7 @@
  *               \/_/
  */
 
+#include <cstdio>
 #include "FastThreadPool.h"
 #include "BlockQueue.h"
 #include "FqFwThread.h"
@@ -47,12 +48,20 @@ ErrorCode FastThreadPool::post(const std::shared_ptr<Task>& task)
 }
 
 
-bool FastThreadPool::exit()
+bool FastThreadPool::shutdown()
 {
     for (auto it = mThreadList.begin(); it != mThreadList.end(); ++it) {
         (*it)->stop();
+        while (true) {
+            if ((*it)->state() == ThreadStatus::EXIT) {
+                break;
+            }
+        }
+        if ((*it)->joinable()) {
+            (*it)->join();
+        }
     }
-    mBlockQueue->exit();
+    printf("FastThreadPool::shutdown()\n");
 }
 
 
@@ -60,8 +69,15 @@ void FastThreadPool::init()
 {
     for (int i = 0; i < mThreadCount; ++i) {
         std::shared_ptr<FqFwThread> thread = std::shared_ptr<FqFwThread>(new FqFwThread(mBlockQueue));
+        while (true) {
+            if (thread->state() == ThreadStatus::WAIT) {
+                break;
+            }
+        }
+
         mThreadList.push_back(thread);
     }
+    printf("FastThreadPool::init()\n");
 }
 
 

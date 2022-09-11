@@ -28,10 +28,17 @@ private:
     std::weak_ptr<BlockQueue>       mBlockQueue;
     std::atomic<bool>               mRun;
     std::thread                     mThread;
+
+    std::thread::id                 mTid;
+    std::atomic<uint32_t>           mStatus;
 public:
     explicit FqFwThread(const std::shared_ptr<BlockQueue>& ptr);
     ~FqFwThread();
 
+    bool joinable();
+    void join();
+
+    uint32_t state();
     void stop();
 private:
     void run();
